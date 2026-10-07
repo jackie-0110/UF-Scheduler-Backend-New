@@ -31,9 +31,14 @@ class Counter:
 
 counter = Counter()
 
+# UF only returns meeting times to a logged-in session. Set UF_COOKIE to the Cookie
+# header of a signed-in one.uf.edu browser session (kept out of the repo on purpose).
+UF_COOKIE = os.environ.get('UF_COOKIE', '').strip()
+HEADERS = {'Cookie': UF_COOKIE} if UF_COOKIE else {}
+
 def scrape_page(url):
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=HEADERS)
         response.raise_for_status()  # Raises stored HTTPError, if one occurred.
     except requests.HTTPError as http_err:
         logging.error(f'HTTP error occurred: {http_err}')
@@ -196,6 +201,13 @@ def alphabeticalNoDuplicates(directory):
     #                 instructor['avgRating'] = professors[instructor_name]['avgRating']
     #                 instructor['avgDifficulty'] = professors[instructor_name]['avgDifficulty']
 
+    # Without a valid login UF answers with every section's meetTimes empty, which
+    # would make every class look online. Stop instead of publishing that.
+    if not any(section['meetTimes'] for course in unique_courses for section in course['sections']):
+        logging.error('No section has meeting times: UF_COOKIE is missing or expired. Nothing was saved.')
+        os.remove(directory)
+        os._exit(1)
+
     # Write data to file
     with open(output_file_name, 'w') as file:
         json.dump(unique_courses, file, indent=4)
@@ -224,14 +236,8 @@ if __name__ == '__main__':
             print("Year should be a two-digit number between 00 and 99")
             sys.exit(1)
 
-        # Delete existing JSON files for the current term and year
+        # Existing data for this term is replaced only after the new scrape passes its checks
         current_files = glob.glob(os.path.join(courses_dir, f'*_{year}_{term}_final.json'))
-        for file in current_files:
-            try:
-                os.remove(file)
-            except OSError as e:
-                logging.error(f'Error while deleting file {file}. Error message: {e.strerror}')
-                sys.exit(1)
 
         term_dict = {'spring': '1', 'summer': '5', 'fall': '8'}
         term_num = str(2) + str(year) + term_dict[term]
@@ -268,5 +274,12 @@ if __name__ == '__main__':
                     logging.error(f'Error while deleting file {file}. Error message: {e.strerror}')
                     sys.exit(1)
         
+        for file in current_files:
+            try:
+                os.remove(file)
+            except OSError as e:
+                logging.error(f'Error while deleting file {file}. Error message: {e.strerror}')
+                sys.exit(1)
+
         # Reset the counter value for the next iteration
         counter.value = 0

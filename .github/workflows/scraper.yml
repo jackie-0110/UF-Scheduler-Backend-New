@@ -30,6 +30,8 @@ jobs:
 
       - name: Scrape UF course data for Fall 2026 and Spring 2027
         run: python pythonScripts/UFCourseGrabber.py fall 26 spring 27
+        env:
+          UF_COOKIE: ${{ secrets.UF_COOKIE }}
 
       - name: Run second script
         run: python pythonScripts/scrapeRMP.py
