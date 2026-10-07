@@ -210,10 +210,14 @@ def get_courses():
     if not searchTerm:
         return jsonify([])
 
-    # For prefix matching in FTS
-    terms = searchTerm.split()
-    prefix_terms = [t + '*' for t in terms]
+    # For prefix matching in FTS. Keep only alphanumeric tokens and quote them so
+    # punctuation ("C++", "COP-3502") and FTS keywords (AND, OR, NOT) can't break the query.
+    terms = re.findall(r'[A-Za-z0-9]+', searchTerm)
+    if not terms:
+        return jsonify([])
+    prefix_terms = [f'"{t}"*' for t in terms]
     fts_query = ' '.join(prefix_terms)
+    exact_code = ''.join(terms).upper()
 
     conn = get_connection(db_name)
     conn.row_factory = sqlite3.Row
@@ -224,7 +228,7 @@ def get_courses():
             json_data,
             bm25(courses_fts) AS rank,
             CASE 
-                WHEN codeWithSpace = :exactSearch OR code = :exactSearch THEN 0 
+                WHEN upper(code) = :exactSearch THEN 0 
                 ELSE 1 
             END AS top_sort
         FROM courses_fts
@@ -235,7 +239,7 @@ def get_courses():
     '''
 
     rows = cur.execute(query, {
-        'exactSearch': searchTerm,
+        'exactSearch': exact_code,
         'ftsQuery': fts_query,
         'limit': itemsPerPage,
         'offset': startFrom
