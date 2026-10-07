@@ -204,6 +204,10 @@ def get_courses():
     if not year or not term:
         return jsonify({"error": "Missing 'year' or 'term' in request body"}), 400
 
+    # Only terms with scraped data have a database; anything else has no results
+    if (year, term) not in major_graph_map:
+        return jsonify([])
+
     db_name = f'courses_{year}_{term}.db'
 
     if not searchTerm:
