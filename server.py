@@ -226,7 +226,8 @@ def get_courses():
     query = '''
         SELECT
             json_data,
-            bm25(courses_fts) AS rank,
+            -- weight code and title matches above description / instructor matches
+            bm25(courses_fts, 10.0, 10.0, 6.0, 1.0, 2.0) AS rank,
             CASE 
                 WHEN upper(code) = :exactSearch THEN 0 
                 ELSE 1 
