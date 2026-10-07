@@ -9,13 +9,12 @@ import gc
 import os
 
 app = Flask(__name__)
-CORS(app, origins=[
-    'http://ufscheduler.com',
-    'https://ufscheduler.com',
-    'http://www.ufscheduler.com',
-    'https://www.ufscheduler.com',
-    'http://localhost:3000'
-])
+# Comma-separated list of sites allowed to call this API; override with ALLOWED_ORIGINS
+ALLOWED_ORIGINS = os.environ.get(
+    'ALLOWED_ORIGINS',
+    'https://ufscheduler.jackie-courtney.com,http://localhost:3000'
+).split(',')
+CORS(app, origins=[origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()])
 
 # -------------------------------------------------------------------
 # 1. Locate and load all course JSON files corresponding to (_{year}_{term}_final.json)
