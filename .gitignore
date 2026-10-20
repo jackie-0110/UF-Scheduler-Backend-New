@@ -1,2 +1,3 @@
 # SQLite search indexes are rebuilt from courses/*.json on startup
 courses_*.db*
+__pycache__/
