@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Comma-separated list of sites allowed to call this API; override with ALLOWED_ORIGINS
 ALLOWED_ORIGINS = os.environ.get(
     'ALLOWED_ORIGINS',
-    'https://ufscheduler.jackie-courtney.com,http://localhost:3000'
+    'https://ufscheduler.jackie-courtney.com,https://uf-scheduler.jackieec956.workers.dev,http://localhost:3000'
 ).split(',')
 CORS(app, origins=[origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()])
 
