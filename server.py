@@ -7,6 +7,7 @@ import re
 import networkx as nx
 import gc
 import os
+from prereq_parser import parse_course, normalize_code
 
 app = Flask(__name__)
 # Comma-separated list of sites allowed to call this API; override with ALLOWED_ORIGINS
@@ -25,6 +26,7 @@ json_files = glob.glob('courses/*_final.json')
 
 # Instead, add a new global dictionary to hold all pre-built graphs:
 major_graph_map = {}  # {(year, term): {departmentName: nx.DiGraph}}
+course_info_map = {}  # {(year, term): {courseCode: parsed prerequisite info}}
 
 # Keep the parse_year_term_from_filename, get_connection, etc. as they are...
 
@@ -128,53 +130,80 @@ def init_db_for_file(json_path):
 for jpath in json_files:
     init_db_for_file(jpath)
 
-def clean_prereq(prerequisites):
-    pattern = r'[A-Z]{3}\s\d{4}'
-    return re.findall(pattern, prerequisites)
-
 def format_course_code(course):
     return course[:3] + '\n' + course[3:]
 
-def build_graph_for_all_majors(all_courses):
+
+def graph_node_id(code):
+    """Graph node id for a course code; a lab/section letter suffix (CHM2046L) folds into the base course."""
+    return format_course_code(normalize_code(code).rstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZ '))
+
+
+def build_course_info(all_courses):
     """
-    Return a dict: { major: nx.DiGraph }, where each graph includes edges
-    based on prerequisites among courses in the same major (deptName).
+    code -> parsed prerequisite info plus the basics the UI needs (name, credits, department).
+    The prerequisite fields come from prereq_parser (AND of OR groups).
     """
-    # Build a quick dept map: code -> deptName
-    code_dept_map = {}
-    # Also store prerequisites for each course code:
-    code_prereq_map = {}
+    info = {}
     for course in all_courses:
-        code = course['code']
         sections = course.get('sections', [])
-        dept_name = sections[0].get("deptName", "") if sections else ""
-        code_dept_map[code] = dept_name
-        code_prereq_map[code] = course.get("prerequisites", "")
+        first = sections[0] if sections else {}
+        parsed = parse_course(course)
+        info[normalize_code(course['code'])] = {
+            'code': normalize_code(course['code']),
+            'name': course.get('name', ''),
+            'credits': first.get('credits'),
+            'dept': first.get('deptName', ''),
+            'prereq': parsed['prereq'],
+            'softPrereq': parsed['softPrereq'],
+            'coreq': parsed['coreq'],
+            'concurrent': parsed['concurrent'],
+            'minGrade': parsed['minGrade'],
+            'standing': parsed['standing'],
+            'requirements': parsed['requirements'],
+            'notes': parsed['notes'],
+        }
+    return info
 
-    # Group courses by department name (major):
-    major_courses_map = {}
-    for code, dept in code_dept_map.items():
-        major_courses_map.setdefault(dept, []).append(code)
 
-    # Now build a graph for each department
+def build_graph_for_all_majors(course_info):
+    """
+    Return a dict: { major: nx.DiGraph }. Each edge points prerequisite -> course and carries
+    `kind`: 'required' (single course), 'choice' (one of several, grouped by `group`),
+    'soft' (can also be waived by permission etc.) or 'coreq' (must be taken together).
+    """
+    by_dept = {}
+    for info in course_info.values():
+        by_dept.setdefault(info['dept'], []).append(info)
+
     graphs_for_majors = {}
-    for dept, codes in major_courses_map.items():
+    for dept, courses in by_dept.items():
         G = nx.DiGraph()
-        # For each course in this dept, parse its prereqs, add edges
-        for code in codes:
-            prereq_list = clean_prereq(code_prereq_map[code])
-            course_fmt = format_course_code(code.rstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZ '))
-            for prereq in prereq_list:
-                pre_fmt = format_course_code(prereq.replace(" ", "").rstrip(' '))
-                if course_fmt != pre_fmt:
-                    G.add_edge(pre_fmt, course_fmt)
+        for info in courses:
+            target = graph_node_id(info['code'])
+            groups = (
+                [(g, 'required' if len(g) == 1 else 'choice') for g in info['prereq']]
+                + [(g, 'soft') for g in info['softPrereq']]
+                + [(g, 'coreq') for g in info['coreq'] + info['concurrent']]
+            )
+            for index, (group, kind) in enumerate(groups):
+                for prereq in group:
+                    source = graph_node_id(prereq)
+                    if source == target:
+                        continue
+                    existing = G.get_edge_data(source, target)
+                    if existing and existing['kind'] == 'required':
+                        continue
+                    G.add_edge(source, target, kind=kind, group=f'{target}:{index}')
         graphs_for_majors[dept] = G
 
     return graphs_for_majors
 
+
 # Build all major graphs for each (year, term) and store in major_graph_map
 for (year, term), all_courses in year_term_course_list.items():
-    major_graph_map[(year, term)] = build_graph_for_all_majors(all_courses)
+    course_info_map[(year, term)] = build_course_info(all_courses)
+    major_graph_map[(year, term)] = build_graph_for_all_majors(course_info_map[(year, term)])
 
 # We can discard the raw course lists now that graphs are built
 del year_term_course_list
@@ -297,12 +326,45 @@ def generate_a_list():
         }
         for node in G.nodes()
     ]
-    edges = [{"data": {"source": e[0], "target": e[1]}} for e in G.edges()]
+    edges = [
+        {
+            "data": {
+                "source": u,
+                "target": v,
+                "kind": attrs.get("kind", "required"),
+                "group": attrs.get("group"),
+            },
+            "classes": attrs.get("kind", "required"),
+        }
+        for u, v, attrs in G.edges(data=True)
+    ]
 
     return jsonify({
         'nodes': nodes,
         'edges': edges
     })
+
+# -------------------------------------------------------------------
+# 5b. /api/prereqs: parsed prerequisites for every course in a term
+# -------------------------------------------------------------------
+@app.route('/api/prereqs', methods=['GET'])
+def get_prereqs():
+    """
+    GET /api/prereqs?year=27&term=spring
+
+    Returns { courseCode: { name, credits, dept, prereq, softPrereq, coreq, concurrent,
+    minGrade, standing, requirements, notes } }. `prereq`, `softPrereq`, `coreq` and
+    `concurrent` are ANDs of OR groups: [["MAC2312"], ["MAC2512", "MAC3473"]] means
+    MAC2312 AND (MAC2512 OR MAC3473).
+    """
+    year = request.args.get('year')
+    term = request.args.get('term')
+    info = course_info_map.get((year, term))
+    if info is None:
+        return jsonify({'error': 'unknown term'}), 404
+    response = jsonify(info)
+    response.headers['Cache-Control'] = 'public, max-age=3600'
+    return response
 
 # -------------------------------------------------------------------
 # 6. Optional: run the app
