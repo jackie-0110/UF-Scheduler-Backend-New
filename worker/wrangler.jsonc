@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "uf-scheduler-courses",
-      "database_id": "local"
+      "database_id": "ac6cde1c-9ed3-4c2d-816f-fed8bc2d98c7"
     }
   ],
   "vars": {
