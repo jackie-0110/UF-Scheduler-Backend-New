@@ -1,0 +1,68 @@
+"""
+Compares the Worker against the Flask app on the same requests.
+
+    python scripts/parity_check.py http://localhost:8787 http://localhost:5055
+
+Run `wrangler dev` (in worker/) and the Flask app, then give the Worker URL first.
+Responses are compared as parsed JSON, so key order and whitespace don't matter.
+"""
+import json
+import sys
+import urllib.error
+import urllib.request
+
+SEARCHES = [
+    'cop 3502', 'COP3502C', 'calculus', 'C++', 'smith', 'AND OR', 'mac', 'intro to',
+    'a', '   ', '!!!', 'cop-3503', 'organic chemistry', 'statistics', 'zzzzqqq', 'ENC 1101',
+]
+TERMS = [('27', 'spring'), ('26', 'fall'), ('25', 'fall'), ('99', 'winter')]
+
+
+def request(base, path, body=None):
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(
+        base + path, data=data, headers={'Content-Type': 'application/json'}
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            return response.status, json.load(response)
+    except urllib.error.HTTPError as error:
+        return error.code, json.load(error)
+
+
+def compare(label, worker, flask, failures):
+    ok = worker == flask
+    if not ok:
+        failures.append(label)
+    print(('ok   ' if ok else 'FAIL ') + label)
+
+
+def main(worker_url, flask_url):
+    failures = []
+
+    for year, term in TERMS:
+        for text in SEARCHES:
+            for page in (0, 20):
+                body = {'searchTerm': text, 'itemsPerPage': 20, 'startFrom': page,
+                        'year': year, 'term': term}
+                compare(
+                    f'search {year}_{term} {text!r} from {page}',
+                    request(worker_url, '/api/get_courses', body),
+                    request(flask_url, '/api/get_courses', body),
+                    failures,
+                )
+
+    bad = {'searchTerm': 'x'}
+    compare('search missing year/term', request(worker_url, '/api/get_courses', bad),
+            request(flask_url, '/api/get_courses', bad), failures)
+
+    for year, term in TERMS:
+        path = f'/api/prereqs?year={year}&term={term}'
+        compare(f'prereqs {year}_{term}', request(worker_url, path), request(flask_url, path), failures)
+
+    print(f'\n{len(failures)} mismatches')
+    return 1 if failures else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1].rstrip('/'), sys.argv[2].rstrip('/')))
