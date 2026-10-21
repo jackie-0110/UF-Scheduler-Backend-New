@@ -1,11 +1,27 @@
-export interface Env {
-  DB: D1Database;
-  DATA: Fetcher;
-  ALLOWED_ORIGINS: string;
-}
+import { corsHeaders, withCors } from "./cors";
+import { Env, json } from "./http";
+import { handlePrereqs } from "./prereqs";
+
+export type { Env };
 
 export default {
-  async fetch(): Promise<Response> {
-    return new Response("UF Scheduler API", { status: 200 });
+  async fetch(request: Request, env: Env): Promise<Response> {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders(request, env) });
+    }
+
+    const url = new URL(request.url);
+    let response: Response;
+    try {
+      if (request.method === "GET" && url.pathname === "/api/prereqs") {
+        response = await handlePrereqs(url, env);
+      } else {
+        response = json({ error: "not found" }, 404);
+      }
+    } catch (error) {
+      console.error(error);
+      response = json({ error: "internal error" }, 500);
+    }
+    return withCors(response, request, env);
   },
 } satisfies ExportedHandler<Env>;
