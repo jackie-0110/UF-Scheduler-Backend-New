@@ -9,6 +9,7 @@ Responses are compared as parsed JSON, so key order and whitespace don't matter.
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -26,13 +27,19 @@ TAKEN = [['COP3502C', 'MAC2311'], [], ['CHM2046L', 'XYZ9999', 'ENC1101']]
 def request(base, path, body=None):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(
-        base + path, data=data, headers={'Content-Type': 'application/json'}
+        base + path, data=data, headers={'Content-Type': 'application/json', 'User-Agent': 'parity-check/1.0'}
     )
-    try:
-        with urllib.request.urlopen(req) as response:
-            return response.status, json.load(response)
-    except urllib.error.HTTPError as error:
-        return error.code, json.load(error)
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req) as response:
+                return response.status, json.load(response)
+        except urllib.error.HTTPError as error:
+            return error.code, json.load(error)
+        except urllib.error.URLError:
+            # a dropped connection to the remote Worker shouldn't end a long run
+            if attempt == 3:
+                raise
+            time.sleep(2 ** attempt)
 
 
 def compare(label, worker, flask, failures):
