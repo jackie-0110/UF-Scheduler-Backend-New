@@ -1,5 +1,6 @@
 import { corsHeaders, withCors } from "./cors";
 import { Env, json } from "./http";
+import { handleGraph } from "./graph";
 import { handlePrereqs } from "./prereqs";
 import { handleSearch } from "./search";
 
@@ -18,6 +19,8 @@ export default {
         response = await handlePrereqs(url, env);
       } else if (request.method === "POST" && url.pathname === "/api/get_courses") {
         response = await handleSearch(request, env);
+      } else if (request.method === "POST" && url.pathname === "/generate_a_list") {
+        response = await handleGraph(request, env);
       } else {
         response = json({ error: "not found" }, 404);
       }
