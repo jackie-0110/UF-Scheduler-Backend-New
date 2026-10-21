@@ -7,6 +7,7 @@ Run `wrangler dev` (in worker/) and the Flask app, then give the Worker URL firs
 Responses are compared as parsed JSON, so key order and whitespace don't matter.
 """
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
@@ -16,6 +17,10 @@ SEARCHES = [
     'a', '   ', '!!!', 'cop-3503', 'organic chemistry', 'statistics', 'zzzzqqq', 'ENC 1101',
 ]
 TERMS = [('27', 'spring'), ('26', 'fall'), ('25', 'fall'), ('99', 'winter')]
+
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TAKEN = [['COP3502C', 'MAC2311'], [], ['CHM2046L', 'XYZ9999', 'ENC1101']]
 
 
 def request(base, path, body=None):
@@ -59,6 +64,20 @@ def main(worker_url, flask_url):
     for year, term in TERMS:
         path = f'/api/prereqs?year={year}&term={term}'
         compare(f'prereqs {year}_{term}', request(worker_url, path), request(flask_url, path), failures)
+
+    for year, term in TERMS:
+        index_path = os.path.join(ROOT, 'worker', 'data', 'graphs', f'{year}_{term}', 'index.json')
+        majors = list(json.load(open(index_path))) if os.path.exists(index_path) else []
+        for major in majors + ['No Such Major']:
+            for taken in TAKEN:
+                body = {'selectedMajorServ': major, 'selectedCoursesServ': taken,
+                        'year': year, 'term': term}
+                compare(
+                    f'graph {year}_{term} {major!r} taken={len(taken)}',
+                    request(worker_url, '/generate_a_list', body),
+                    request(flask_url, '/generate_a_list', body),
+                    failures,
+                )
 
     print(f'\n{len(failures)} mismatches')
     return 1 if failures else 0
