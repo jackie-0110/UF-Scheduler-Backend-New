@@ -1,0 +1,19 @@
+{
+  "name": "uf-scheduler-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "assets": {
+    "directory": "./data",
+    "binding": "DATA"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "uf-scheduler-courses",
+      "database_id": "local"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://ufscheduler.jackie-courtney.com,https://uf-scheduler.jackieec956.workers.dev,http://localhost:3000"
+  }
+}
