@@ -10,6 +10,7 @@ Same endpoints as the Flask app in the repo root, running on Workers + D1 so it 
 | `POST /api/auth/google`, `GET /api/me`, `POST /api/auth/logout` | Google sign-in, sessions in D1 |
 | `POST /api/calendar`, `POST /api/calendar/reset` | save a term's classes to the user's feed, or make a new feed link |
 | `GET /cal/{token}.ics` | the subscribable calendar feed |
+| `GET /api/data?since=`, `POST /api/data` | the signed-in user's saved app state (planner, schedules, friends) |
 
 The prerequisite parser and graph builders stay in Python. A build step exports their output,
 so the Worker only serves data.
@@ -39,7 +40,8 @@ Flask app and compares the JSON.
 
 Each account gets one calendar feed. The site POSTs the pinned schedule per term and calendar
 apps poll `/cal/{token}.ics`. The `users`, `sessions` and `calendar_feeds` tables are created on
-first use.
+first use, as is `user_data`, which holds the site's saved state as key/value pairs stamped with
+server time so devices can fetch what changed since their last sync.
 
 Sign-in uses Google's button, which returns a signed ID token; the Worker checks it against
 Google's public keys, so there's no client secret. To set it up:

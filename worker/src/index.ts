@@ -5,6 +5,7 @@ import { handlePrereqs } from "./prereqs";
 import { handleSearch } from "./search";
 import { handleCalendarFeed, handleResetFeed, handleSaveCalendar } from "./calendar";
 import { handleGoogleSignIn, handleMe, handleSignOut } from "./auth";
+import { handleGetData, handlePutData } from "./data";
 
 export type { Env };
 
@@ -38,6 +39,10 @@ export default {
         response = await handleSignOut(request, env);
       } else if (request.method === "GET" && url.pathname === "/api/me") {
         response = await handleMe(request, env);
+      } else if (request.method === "GET" && url.pathname === "/api/data") {
+        response = await handleGetData(request, url, env);
+      } else if (request.method === "POST" && url.pathname === "/api/data") {
+        response = await handlePutData(request, env);
       } else if (request.method === "POST" && url.pathname === "/api/calendar") {
         response = await handleSaveCalendar(request, env);
       } else if (request.method === "POST" && url.pathname === "/api/calendar/reset") {
