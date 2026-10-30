@@ -7,7 +7,8 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "seed:local": "wrangler d1 execute uf-scheduler-courses --local --file seed/26_fall.sql && wrangler d1 execute uf-scheduler-courses --local --file seed/27_spring.sql",
-    "seed:remote": "wrangler d1 execute uf-scheduler-courses --remote --file seed/26_fall.sql && wrangler d1 execute uf-scheduler-courses --remote --file seed/27_spring.sql"
+    "seed:remote": "wrangler d1 execute uf-scheduler-courses --remote --file seed/26_fall.sql && wrangler d1 execute uf-scheduler-courses --remote --file seed/27_spring.sql",
+    "test": "esbuild src/auth.ts --bundle --format=esm --platform=neutral --outfile=.test/auth.mjs --log-level=warning && node test/auth.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261019.1",

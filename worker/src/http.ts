@@ -2,6 +2,8 @@ export interface Env {
   DB: D1Database;
   DATA: Fetcher;
   ALLOWED_ORIGINS: string;
+  // OAuth client ID from Google Cloud; public, so it lives in wrangler vars
+  GOOGLE_CLIENT_ID?: string;
 }
 
 export const json = (body: unknown, status = 200, headers: HeadersInit = {}) =>

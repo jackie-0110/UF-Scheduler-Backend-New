@@ -14,6 +14,8 @@
     }
   ],
   "vars": {
-    "ALLOWED_ORIGINS": "https://ufscheduler.jackie-courtney.com,https://uf-scheduler.jackieec956.workers.dev,http://localhost:3000"
+    "ALLOWED_ORIGINS": "https://ufscheduler.jackie-courtney.com,https://uf-scheduler.jackieec956.workers.dev,http://localhost:3000",
+    // Google sign-in (OAuth client ID, not a secret)
+    "GOOGLE_CLIENT_ID": ""
   }
 }
