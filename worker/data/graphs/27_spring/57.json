@@ -1,0 +1,1 @@
+{"nodes":["CZE\n1130","CZE\n1131","CZE\n2200","CZE\n2201"],"edges":[{"source":"CZE\n1130","target":"CZE\n1131","kind":"soft","group":"CZE\n1131:0"},{"source":"CZE\n2200","target":"CZE\n2201","kind":"soft","group":"CZE\n2201:0"}]}

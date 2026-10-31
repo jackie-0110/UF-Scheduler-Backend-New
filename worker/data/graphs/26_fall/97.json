@@ -1,0 +1,1 @@
+{"nodes":["GMS\n6065","GMS\n6053","GMS\n6500","GMS\n6590"],"edges":[{"source":"GMS\n6065","target":"GMS\n6053","kind":"soft","group":"GMS\n6053:0"},{"source":"GMS\n6500","target":"GMS\n6590","kind":"required","group":"GMS\n6590:0"}]}

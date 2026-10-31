@@ -1,0 +1,1 @@
+{"nodes":["CEN\n3031","CEN\n4907","EEL\n3744","COP\n4600"],"edges":[{"source":"CEN\n3031","target":"CEN\n4907","kind":"required","group":"CEN\n4907:0"},{"source":"EEL\n3744","target":"CEN\n4907","kind":"required","group":"CEN\n4907:1"},{"source":"COP\n4600","target":"CEN\n4907","kind":"coreq","group":"CEN\n4907:2"}]}

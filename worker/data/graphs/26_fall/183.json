@@ -1,0 +1,1 @@
+{"nodes":["VEM\n5880","VEM\n5881","VEM\n5848","VEM\n5847"],"edges":[{"source":"VEM\n5880","target":"VEM\n5881","kind":"choice","group":"VEM\n5881:0"},{"source":"VEM\n5848","target":"VEM\n5881","kind":"soft","group":"VEM\n5881:2"},{"source":"VEM\n5847","target":"VEM\n5881","kind":"choice","group":"VEM\n5881:1"}]}

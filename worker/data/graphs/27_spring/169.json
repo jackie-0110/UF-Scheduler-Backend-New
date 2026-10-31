@@ -1,0 +1,1 @@
+{"nodes":["BSC\n2010","VME\n4013","BSC\n2011"],"edges":[{"source":"BSC\n2010","target":"VME\n4013","kind":"soft","group":"VME\n4013:0"},{"source":"BSC\n2011","target":"VME\n4013","kind":"soft","group":"VME\n4013:1"}]}

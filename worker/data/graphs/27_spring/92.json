@@ -1,0 +1,1 @@
+{"nodes":["GRE\n1120","GRE\n1121","GRE\n1130","GRK\n1130","GRK\n1131"],"edges":[{"source":"GRE\n1120","target":"GRE\n1121","kind":"choice","group":"GRE\n1121:0"},{"source":"GRE\n1130","target":"GRE\n1121","kind":"choice","group":"GRE\n1121:0"},{"source":"GRK\n1130","target":"GRK\n1131","kind":"required","group":"GRK\n1131:0"}]}

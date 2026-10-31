@@ -1,0 +1,1 @@
+{"nodes":["HNG\n1130","HNG\n1131","TUR\n1130","TUR\n1131","TUR\n2220","TUR\n2221"],"edges":[{"source":"HNG\n1130","target":"HNG\n1131","kind":"soft","group":"HNG\n1131:0"},{"source":"TUR\n1130","target":"TUR\n1131","kind":"required","group":"TUR\n1131:0"},{"source":"TUR\n2220","target":"TUR\n2221","kind":"soft","group":"TUR\n2221:0"}]}

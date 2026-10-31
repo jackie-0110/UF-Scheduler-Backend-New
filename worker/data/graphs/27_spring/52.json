@@ -1,0 +1,1 @@
+{"nodes":["ENC\n1101","CLA\n3434","CLA\n3700","CLA\n3930"],"edges":[{"source":"ENC\n1101","target":"CLA\n3434","kind":"soft","group":"CLA\n3434:0"},{"source":"ENC\n1101","target":"CLA\n3700","kind":"soft","group":"CLA\n3700:0"},{"source":"ENC\n1101","target":"CLA\n3930","kind":"soft","group":"CLA\n3930:0"}]}

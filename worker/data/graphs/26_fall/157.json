@@ -1,0 +1,1 @@
+{"nodes":["PHA\n6432","PHA\n6462","PHA\n6447","PHA\n6468","PHA\n6467"],"edges":[{"source":"PHA\n6432","target":"PHA\n6462","kind":"required","group":"PHA\n6462:0"},{"source":"PHA\n6447","target":"PHA\n6468","kind":"soft","group":"PHA\n6468:0"},{"source":"PHA\n6467","target":"PHA\n6468","kind":"soft","group":"PHA\n6468:1"}]}

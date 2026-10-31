@@ -1,0 +1,1 @@
+{"nodes":["ENC\n1101","MEM\n3730","MEM\n3931","MEM\n4931"],"edges":[{"source":"ENC\n1101","target":"MEM\n3730","kind":"required","group":"MEM\n3730:0"},{"source":"ENC\n1101","target":"MEM\n3931","kind":"required","group":"MEM\n3931:0"},{"source":"ENC\n1101","target":"MEM\n4931","kind":"required","group":"MEM\n4931:0"}]}

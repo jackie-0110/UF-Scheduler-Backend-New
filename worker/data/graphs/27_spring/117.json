@@ -1,0 +1,1 @@
+{"nodes":["LAT\n1120","LAT\n1101","LAT\n1104"],"edges":[{"source":"LAT\n1120","target":"LAT\n1101","kind":"soft","group":"LAT\n1101:0"},{"source":"LAT\n1101","target":"LAT\n1104","kind":"soft","group":"LAT\n1104:0"}]}

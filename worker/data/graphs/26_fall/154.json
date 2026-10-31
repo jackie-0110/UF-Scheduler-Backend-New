@@ -1,0 +1,1 @@
+{"nodes":["PHA\n5788","PHA\n5331","PHA\n5163","PHA\n5782"],"edges":[{"source":"PHA\n5788","target":"PHA\n5331","kind":"required","group":"PHA\n5331:0"},{"source":"PHA\n5163","target":"PHA\n5782","kind":"coreq","group":"PHA\n5782:0"}]}

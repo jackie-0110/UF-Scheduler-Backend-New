@@ -1,0 +1,1 @@
+{"nodes":["SWA\n1130","SWA\n1131","SWA\n2200","SWA\n2201"],"edges":[{"source":"SWA\n1130","target":"SWA\n1131","kind":"soft","group":"SWA\n1131:0"},{"source":"SWA\n2200","target":"SWA\n2201","kind":"soft","group":"SWA\n2201:0"}]}

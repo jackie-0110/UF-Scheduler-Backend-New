@@ -1,0 +1,1 @@
+{"nodes":["GER\n1130","GER\n1131","GER\n2200","GER\n2240"],"edges":[{"source":"GER\n1130","target":"GER\n1131","kind":"soft","group":"GER\n1131:0"},{"source":"GER\n2200","target":"GER\n2240","kind":"required","group":"GER\n2240:0"}]}

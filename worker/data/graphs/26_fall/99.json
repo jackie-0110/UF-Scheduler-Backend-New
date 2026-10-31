@@ -1,0 +1,1 @@
+{"nodes":["BME\n6535","GMS\n6654","GMS\n6655","GMS\n6057"],"edges":[{"source":"BME\n6535","target":"GMS\n6654","kind":"soft","group":"GMS\n6654:0"},{"source":"GMS\n6654","target":"GMS\n6655","kind":"soft","group":"GMS\n6655:0"},{"source":"GMS\n6057","target":"GMS\n6655","kind":"soft","group":"GMS\n6655:1"}]}

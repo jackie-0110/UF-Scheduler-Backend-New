@@ -1,0 +1,1 @@
+{"nodes":["BSC\n2010","PTN\n2105","CHM\n2045"],"edges":[{"source":"BSC\n2010","target":"PTN\n2105","kind":"required","group":"PTN\n2105:0"},{"source":"CHM\n2045","target":"PTN\n2105","kind":"required","group":"PTN\n2105:1"}]}

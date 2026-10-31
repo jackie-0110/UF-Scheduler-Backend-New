@@ -1,0 +1,1 @@
+{"nodes":["ITA\n1131","ITA\n2220","ITA\n2221","ITA\n3420","ITA\n3500"],"edges":[{"source":"ITA\n1131","target":"ITA\n2220","kind":"required","group":"ITA\n2220:0"},{"source":"ITA\n2221","target":"ITA\n3420","kind":"required","group":"ITA\n3420:0"},{"source":"ITA\n2221","target":"ITA\n3500","kind":"soft","group":"ITA\n3500:0"}]}
